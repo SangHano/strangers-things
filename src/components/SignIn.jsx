@@ -14,12 +14,15 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
+const COHORT_NAME ='2306-FSA-ET-WEB-FT-SF'
+const API_URL = `https://strangers-things.herokuapp.com/api/${COHORT_NAME}`
+
 const Copyright=(props)=> {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
       <Link color="inherit" href="https://mui.com/">
-        Your Website
+
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -27,23 +30,40 @@ const Copyright=(props)=> {
   );
 }
 
-// TODO remove, this demo shouldn't need to reset the theme.
-
 const defaultTheme = createTheme();
 
 export default function SignIn() {
     const navigate = useNavigate();
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
       event.preventDefault();
       const data = new FormData(event.currentTarget);
-      console.log({
+    
+      const user = {
         email: data.get('email'),
         password: data.get('password'),
-      });
-  
-      // Navigate to the Home page
-      navigate("/home", { state: { email: data.get('email') } });  // replace "/home" with the actual path of your Home page
+      };
+    
+      try {
+        const response = await fetch(`${API_URL}/users/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ user }),
+        });
+    
+        const result = await response.json();
+        if(result.error) throw result.error; 
+    
+        console.log(result); 
+    
+     
+        navigate("/dashboard");
+      } catch (error) {
+        console.error('Error:', error);
+     
+      }
     };
   
   return (

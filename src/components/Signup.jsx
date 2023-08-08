@@ -13,6 +13,8 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+const COHORT_NAME ='2306-FSA-ET-WEB-FT-SF'
+const API_URL = `https://strangers-things.herokuapp.com/api/`
 
 const Copyright=(props)=> {
   return (
@@ -30,23 +32,49 @@ const Copyright=(props)=> {
 // TODO remove, this demo shouldn't need to reset the theme.
 
 const defaultTheme = createTheme();
-
-
+const registerUser = async () => {
+  try {
+    const response = await fetch(
+      `${API_URL}/users/register`, {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify()
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw errorData; // Throw the error data so we can access it in the catch block
+    }
+    
+    const result = await response.json();
+    console.log(result);
+    return result;
+  } catch (err) {
+    console.error('Error:', err);
+  }
+}
 export default function SignUp() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const handleSubmit = (event) => {
-      event.preventDefault();
-      const data = new FormData(event.currentTarget);
-      console.log({
-        email: data.get('email'),
-        password: data.get('password'),
-      });
-  
-      // Navigate to the SignIn page
-      navigate("/signin");
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+
+    const user = {
+      username: data.get('username'),
+      password: data.get('password'),
     };
 
+    try {
+      const result = await registerUser(user);
+      console.log(result); 
+      navigate("/signin");
+    } catch (error) {
+      console.error('Error:', error);
+      
+    }
+  };
   return (
     <ThemeProvider theme={defaultTheme}>
       <Container component="main" maxWidth="xs">
